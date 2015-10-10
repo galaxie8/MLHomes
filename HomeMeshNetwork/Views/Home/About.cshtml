@@ -13,6 +13,9 @@
     function callGetSensors() {
         $.get('/Home/GetSensors', function (data, status) {
             $('#dataContainer').append(data + ".....status: " + status + '<br/>')
-        })
+        }).fail(function () {
+            $('#dataContainer').append(data + ".....status: " + status + '<br/>')
+
+        });
     }
 </script>

@@ -30,7 +30,8 @@ namespace HomeMeshNetwork.Controllers
 
         public string GetSensors()
         {
-            string stats = SerialClient.SensorReadLine();
+            var sc = new SerialClient();
+            string stats = sc.SensorReadLine();
             ViewBag.Message = stats;
 
             return stats;
