@@ -11,49 +11,53 @@ namespace HomeMeshNetwork
 {
     public class SerialClient
     {
-        SerialPort oCon = new SerialPort("COM3", 115200);
         /// <summary>
-        /// Read one line off of the serial port, and if its not garbled, populate a sensormodel
+        /// Read one line off of the serial port, and hopefully populate a sensormodel
         /// </summary>
         /// <returns>SensorModel or Null if malformed</returns>
-        public string SensorReadLine()
+        public SensorModel SensorReadLine(SerialPort oCon)
         {
-            SensorModel oResult;
             string sInput = string.Empty;
-            oCon.NewLine = "\r\n";
-            oCon.ReadTimeout = 1500;
             try
             {
                 //--------------------------------------------------------
                 // Format of the string that the base station sends us via serial.
                 // Temprature(F)/Humidity(%)/Fire(bit)/distance(cm int)
-                // (T:78H:40F:0W:1D:0)
+                // T78:H40:F0:W1
                 //--------------------------------------------------------
-                oCon.Open();
-                oCon.WriteLine("GimmieDaSensors!");
-                Thread.Sleep(200); // wait a bit for the base station to respond
-                sInput = oCon.ReadLine();
-           
+                oCon.NewLine = "\r\n";
+                //oCon.ReadTimeout = 1500;
 
-                if (!(sInput.StartsWith("(") && sInput.EndsWith(")")) && sInput.Length < 28) // Check for chunk frame and proper size
+                oCon.WriteLine("GimmieDaSensors!"); // Send request command
+                sInput = oCon.ReadLine(); // Catch the reply
+
+                var asSplitInput = sInput.Split(':'); // [T78][H40][F0][W1][D0]
+
+                var oModel = new SensorModel();
+
+                for (int i = 0; i < asSplitInput.Length; i++)
                 {
-                    //throw new Exception("Serial input was malformed.");
+                    asSplitInput[i] = asSplitInput[i].Remove(0, 1); //Removing the data piece identifyer
                 }
-                sInput = sInput.Replace("(", "");
-                sInput = sInput.Replace(")", "");
-                oCon.Close();
-                return sInput;
-                string[] asInput = sInput.Split(':');
 
+                oModel.Temperature = int.Parse(asSplitInput[0]); //Load up the model
+                oModel.Humidity = int.Parse(asSplitInput[1]);
+                if (asSplitInput[2] == "1")
+                {
+                    oModel.FireAlarm = true;
+                } // bool defaults to false
+                if (asSplitInput[3] == "1")
+                {
+                    oModel.WaterAlarm = true;
+                }
+
+                return oModel;
             }
             catch (Exception x)
-            { // Cleaning up our mess
-                oCon.Close();
-                oCon.Dispose();
-                sInput = x.Message;
-                return sInput;
+            {
+                //Let the controller deal with it
+                throw x;
             }
-           // return oResult;
         }
     }
 }

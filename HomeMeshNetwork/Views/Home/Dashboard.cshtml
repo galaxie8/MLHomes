@@ -1,0 +1,45 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+}
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+
+<p>Use this area to provide additional information.</p>
+
+<div ng-app="HomeDash">
+    <div ng-controller="MainCtrl">
+
+    </div>
+</div>
+
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="//code.angularjs.org/1.4.7/angular.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.js"></script>
+<script>
+
+    var app = angular.module("HomeDash", []);
+
+    app.controller('MainCtrl', function ($scope, $http, $log) {
+        $scope.GetSensors = function () {
+            $http({
+                method: 'GET',
+                url: '/home/getsensors'
+            }).then(function successCallback(data) {
+                // this callback will be called asynchronously
+                // when the response is available
+            }, function errorCallback(response) {
+                $log.error(response);
+            });
+        }
+    });
+
+    function callGetSensors() {
+        $.get('/Home/GetSensors', function (data, status) {
+            $('#dataContainer').append(data + ".....status: " + status + '<br/>')
+        }).fail(function () {
+            $('#dataContainer').append(data + ".....status: " + status + '<br/>')
+
+        });
+    }
+</script>

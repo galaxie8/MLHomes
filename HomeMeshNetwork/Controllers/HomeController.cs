@@ -4,19 +4,22 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using HomeMeshNetwork;
+using System.IO.Ports;
+using HomeMeshNetwork.Models;
+using Newtonsoft.Json;
 
 namespace HomeMeshNetwork.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         public ActionResult Index()
         {
             return View();
         }
 
-        public ActionResult About()
+        public ActionResult Dashboard()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "Your Home dashboard!";
 
             return View();
         }
@@ -30,11 +33,21 @@ namespace HomeMeshNetwork.Controllers
 
         public string GetSensors()
         {
-            var sc = new SerialClient();
-            string stats = sc.SensorReadLine();
-            ViewBag.Message = stats;
+            SerialPort oCon = (SerialPort)this.HttpContext.Application["SerialSensor"]; // We put the serial connection in here so that it's a global object
 
-            return stats;
+            var sc = new SerialClient();
+            SensorModel stats;
+
+            try
+            {
+                stats = sc.SensorReadLine(oCon);
+            }
+            catch(Exception ex)
+            {
+                HandleError(ex);
+            }
+            string output = JsonConvert.SerializeObject((object)stats);
+            return output;
         }
     }
 }
