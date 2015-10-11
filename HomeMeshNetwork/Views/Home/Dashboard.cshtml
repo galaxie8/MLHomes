@@ -8,38 +8,58 @@
 
 <div ng-app="HomeDash">
     <div ng-controller="MainCtrl">
+        @*The 'y' div uses the {{height}} variable for the width CSS property - this is because in our CSS we will rotate this counter clockwise by 90 degrees*@
+        @*<div class="chart" style="width:{{width}}px; height:{{height}}px;">
 
+            <div class="y" style="width:{{height}}px;">{{yAxis}}</div>
+            <div class="x">{{xAxis}}</div>
+
+            <div ng-repeat="bar in GraphData" class="bar" style="height:{{bar.value / max * height}}px; width:{{width / GraphData.length - 5}}px; left:{{$index / GraphData.length * width}}px;"></div>
+            
+
+        </div>*@
+        <button class="btn btn-success" onclick="ToggleLight()">Toggle Lamp</button>
+        <div ng-model="sensorData"
     </div>
 </div>
 
 <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="//code.angularjs.org/1.4.7/angular.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.js"></script>
 <script>
 
-    var app = angular.module("HomeDash", []);
-
-    app.controller('MainCtrl', function ($scope, $http, $log) {
-        $scope.GetSensors = function () {
-            $http({
-                method: 'GET',
-                url: '/home/getsensors'
-            }).then(function successCallback(data) {
-                // this callback will be called asynchronously
-                // when the response is available
-            }, function errorCallback(response) {
-                $log.error(response);
-            });
-        }
-    });
-
-    function callGetSensors() {
-        $.get('/Home/GetSensors', function (data, status) {
-            $('#dataContainer').append(data + ".....status: " + status + '<br/>')
+    function ToggleLight() {
+        $.get('/Home/ToggleLight', function (data, status) {
+            console.log(data);
         }).fail(function () {
             $('#dataContainer').append(data + ".....status: " + status + '<br/>')
 
         });
     }
+
+    var app = angular.module("HomeDash", []);
+
+    app.controller('MainCtrl', function ($scope, $http, $log) {
+
+        $scope.GetSensors = function () {
+            $http({
+                method: 'GET',
+                url: '/Home/GetSensors'
+            }).then(function successCallback(data) {
+                $scope.sensorData = data;
+            }, function errorCallback(response) {
+                $log.error(response);
+            });
+        };
+
+        $scope.sensorData;
+
+        var arrLength = $scope.GraphData.length;
+        for (var i = 0; i < arrLength; i++) {
+            // Find Maximum X Axis Value
+            if ($scope.GraphData[i].value > $scope.max)
+                $scope.max = $scope.GraphData[i].value;
+        }
+
+       
+    });
 </script>

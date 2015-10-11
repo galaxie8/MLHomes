@@ -26,10 +26,11 @@ namespace HomeMeshNetwork
                 // T78:H40:F0:W1
                 //--------------------------------------------------------
                 oCon.NewLine = "\r\n";
-                //oCon.ReadTimeout = 1500;
+                oCon.ReadTimeout = 1500;
 
                 oCon.WriteLine("GimmieDaSensors!"); // Send request command
                 sInput = oCon.ReadLine(); // Catch the reply
+
 
                 var asSplitInput = sInput.Split(':'); // [T78][H40][F0][W1][D0]
 
@@ -39,7 +40,6 @@ namespace HomeMeshNetwork
                 {
                     asSplitInput[i] = asSplitInput[i].Remove(0, 1); //Removing the data piece identifyer
                 }
-
                 oModel.Temperature = int.Parse(asSplitInput[0]); //Load up the model
                 oModel.Humidity = int.Parse(asSplitInput[1]);
                 if (asSplitInput[2] == "1")
@@ -58,6 +58,15 @@ namespace HomeMeshNetwork
                 //Let the controller deal with it
                 throw x;
             }
+        }
+
+
+        public void ToggleLight(SerialPort oCon)
+        {
+            oCon.NewLine = "\r\n";
+            oCon.ReadTimeout = 1500;
+
+            oCon.WriteLine("ToggleLight!");
         }
     }
 }

@@ -41,13 +41,21 @@ namespace HomeMeshNetwork.Controllers
             try
             {
                 stats = sc.SensorReadLine(oCon);
+                string output = JsonConvert.SerializeObject((object)stats);
+                return output;
             }
             catch(Exception ex)
             {
-                HandleError(ex);
+                return "error: " + ex.Message;
             }
-            string output = JsonConvert.SerializeObject((object)stats);
-            return output;
+        }
+
+        public void ToggleLight()
+        {
+            SerialPort oCon = (SerialPort)this.HttpContext.Application["SerialSensor"];
+            var sc = new SerialClient();
+
+            sc.ToggleLight(oCon);
         }
     }
 }
