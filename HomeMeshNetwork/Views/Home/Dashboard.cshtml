@@ -4,7 +4,6 @@
 <h2>@ViewBag.Title.</h2>
 <h3>@ViewBag.Message</h3>
 
-<p>Use this area to provide additional information.</p>
 
 <div ng-app="HomeDash">
     <div ng-controller="MainCtrl">
@@ -18,7 +17,17 @@
             
 
         </div>*@
+        <ul><span style="font-weight:bolder">Sensor Data</span>
+        <hr />
+            <li>Temprature: <span style="font-weight:bolder">{{sensorData.data.Temperature}}</span> </li>
+            <li>Relative Humidity: <span style="font-weight:bolder">{{sensorData.data.Humidity}}</span></li>
+            <li>Fire Detected: <span style="font-weight:bolder">{{sensorData.data.FireAlarm}}</span></li><span ng-show="sensorData.data.FireAlarm">Your house may be on fire... you should check that.</span>
+            <li>Water Detected: <span style="font-weight:bolder">{{sensorData.data.WaterAlarm}}</span></li><span ng-show="sensorData.data.WaterAlarm">Your house may be under water... you should check that.</span>
+
+        </ul>
+
         <button class="btn btn-success" onclick="ToggleLight()">Toggle Lamp</button>
+        @*<button class="btn btn-success" ng-click="GetSensors()">GetData</button>*@
         <div ng-model="sensorData"
     </div>
 </div>
@@ -39,26 +48,28 @@
     var app = angular.module("HomeDash", []);
 
     app.controller('MainCtrl', function ($scope, $http, $log) {
+        $http.get('/Home/GetSensors').then(function(response) {
+            $scope.sensorData = response;
+        });
 
         $scope.GetSensors = function () {
             $http({
                 method: 'GET',
                 url: '/Home/GetSensors'
-            }).then(function successCallback(data) {
-                $scope.sensorData = data;
+            }).then(function successCallback(response) {
+                console.log(response);
+                $scope.sensorData = response.data;
             }, function errorCallback(response) {
-                $log.error(response);
+                alert("API Error");
             });
         };
 
-        $scope.sensorData;
-
-        var arrLength = $scope.GraphData.length;
-        for (var i = 0; i < arrLength; i++) {
-            // Find Maximum X Axis Value
-            if ($scope.GraphData[i].value > $scope.max)
-                $scope.max = $scope.GraphData[i].value;
-        }
+        //var arrLength = $scope.GraphData.length;
+        //for (var i = 0; i < arrLength; i++) {
+        //    // Find Maximum X Axis Value
+        //    if ($scope.GraphData[i].value > $scope.max)
+        //        $scope.max = $scope.GraphData[i].value;
+        //}
 
        
     });
